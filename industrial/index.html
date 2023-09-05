@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unyted</title>
+  <link rel="stylesheet" href="TemplateData/ReadyPlayerMe/RpmStyle.css">
+  <style>
+    #gameContainer {
+      width: 100%;
+      height: 100%;
+      margin: auto;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      margin: auto;
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.9.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.9.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.9.2/firebase-database-compat.js"></script>
+  <script>
+    const firebaseApp = firebase.initializeApp({
+      apiKey: "AIzaSyBPCJfClj077UaEHX1-ViVqmSrH_Hhfe_M",
+      authDomain: "unyted-33e7d.firebaseapp.com",
+      databaseURL:
+        "https://unyted-33e7d-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "unyted-33e7d",
+      storageBucket: "unyted-33e7d.appspot.com",
+      messagingSenderId: "126212545038",
+      appId: "1:126212545038:web:031fb06e50ebfba3b8ba5f",
+      measurementId: "...",
+    });
+    const auth = firebaseApp.auth();
+    const database = firebaseApp.database();
+  </script>
+</head>
+
+<body style="text-align: center; padding: 0; border: 0; width: 100%; height: 100%; margin: auto">
+  <div id="unity-container" style="width: 100%; height: 100%; margin: auto">
+    <!-- rpm-container div and contents required for RPM Web Creator-->
+    <div id="rpm-container">
+      <iframe id="rpm-frame" class="rpm-frame" allow="camera *; microphone *"></iframe>
+      <button id="rpm-hide-button" onclick="hideRpm()">Hide</button>
+    </div>
+    <!-- rpm-container div and contents required for RPM Web Creator -->
+    <canvas id="unity-canvas" tabindex="-1" style="width: 100%; height: 100%; margin: auto"></canvas>
+    <div id="unity-loading-bar">
+      <div id="unity-logo"></div>
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
+      </div>
+    </div>
+    <div id="unity-warning"> </div>
+  </div>
+  <script src="Build/Phyton server.loader.js"></script>
+  <script>
+
+    var container = document.querySelector("#unity-container");
+    var canvas = document.querySelector("#unity-canvas");
+    var loadingBar = document.querySelector("#unity-loading-bar");
+    var progressBarFull = document.querySelector("#unity-progress-bar-full");
+    var warningBanner = document.querySelector("#unity-warning");
+
+    // Shows a temporary message banner/ribbon for a few seconds, or
+    // a permanent error message on top of the canvas if type=='error'.
+    // If type=='warning', a yellow highlight color is used.
+    // Modify or remove this function to customize the visually presented
+    // way that non-critical warnings and error messages are presented to the
+    // user.
+    function unityShowBanner(msg, type) {
+      function updateBannerVisibility() {
+        warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+      }
+      var div = document.createElement('div');
+      div.innerHTML = msg;
+      warningBanner.appendChild(div);
+      if (type == 'error') div.style = 'background: red; padding: 10px;';
+      else {
+        if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+        setTimeout(function () {
+          warningBanner.removeChild(div);
+          updateBannerVisibility();
+        }, 5000);
+      }
+      updateBannerVisibility();
+    }
+
+    var buildUrl = "Build";
+    var loaderUrl = buildUrl + "/Phyton server.loader.js";
+    var config = {
+      dataUrl: buildUrl + "/Phyton server.data",
+      frameworkUrl: buildUrl + "/Phyton server.framework.js",
+      codeUrl: buildUrl + "/Phyton server.wasm",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "Unyted",
+    showBanner: unityShowBanner,
+    };
+
+    // By default Unity keeps WebGL canvas render target size matched with
+    // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+    // Set this to false if you want to decouple this synchronization from
+    // happening inside the engine, and you would instead like to size up
+    // the canvas DOM size and WebGL render target sizes yourself.
+    // config.matchWebGLToCanvasSize = false;
+
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      // Mobile device style: fill the whole browser client area with the game canvas:
+
+      var meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+      container.className = "unity-mobile";
+      canvas.className = "unity-mobile";
+
+      // To lower canvas resolution on mobile devices to gain some
+      // performance, uncomment the following line:
+      // config.devicePixelRatio = 1;
+
+
+    }
+
+    loadingBar.style.display = "block";
+
+    var unityGame;
+    var unityInstance;
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+        progressBarFull.style.width = 100 * progress + "%";
+      }).then((unityInstance2) => {
+        unityGame = unityInstance2;
+        unityInstance = unityInstance2;
+        loadingBar.style.display = "none";
+      }).catch((message) => {
+        alert(message);
+      });
+    };
+
+    document.body.appendChild(script);
+
+  </script>
+  <script src="TemplateData/ReadyPlayerMe/RpmGlobal.js"></script> <!-- Required for RPM Web Creator -->
+  <script src="TemplateData/ReadyPlayerMe/ReadyPlayerMeFrame.js"></script> <!-- Required for RPM Web Creator -->
+</body>
+
+</html>
